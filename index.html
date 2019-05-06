@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html lang="en">
+<head> 
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"> <title>Title Goes Here</title> 
+
+	<!-- <link rel="stylesheet" type="text/css" href=""> -->
+	<style type="text/css">
+		.inlineBlock {
+			display: inline-block;
+			vertical-align: top;
+		}
+
+		.oneCell{
+			width: 30px;
+			height:  30px;
+			transition: transform .8s;
+			border: 1px solid black; 
+			cursor: pointer;
+		}
+		.oneCell:hover{
+			/* transform:  rotate(15deg); */
+			transition: transform .8s 
+		}
+
+
+	</style>
+</head>
+<body> 
+	<div id="beforeStartGame">
+		<label>Введите размерность(четную)</label>
+		<input id="dimension" type="number"> 
+		<button onclick="firstStartGame()">Начать</button>
+	</div>
+	<button onclick="ResetGame()">Заново</button>
+	<div id="mainGameDiv">
+	</div>
+
+</body> 
+
+</html>
+
+
+<script type="text/javascript">
+	var Matr;
+	var Dimension;
+
+	//var lastClickTimer;
+	var lastPreCheckId=null;
+//var blockClick=false;
+
+
+
+function firstStartGame(){
+	Dimension=+document.getElementById('dimension').value;
+	initMatr(Dimension);
+	initMatrNums();
+	initMatrView();
+	document.getElementById('beforeStartGame').style.display = 'none';
+
+	document.getElementById('mainGameDiv').style.display = 'block';
+
+}
+
+function ResetGame(){
+	Matr=null;
+	Dimension=null;
+	lastPreCheckId=null;
+	document.getElementById('beforeStartGame').style.display = 'block';
+
+	document.getElementById('mainGameDiv').style.display = 'none';
+}
+
+
+function initMatrNums(){
+		//let curNum=0;
+		let maxNum=Dimension*Dimension/2;
+		var massNum=[];
+
+		for(let i=0;i<maxNum;++i){
+			massNum.push(i);
+			massNum.push(i);
+		}
+
+
+		let curX=0;
+		let curY=0;
+		for(;;){
+			let curIndex=Math.trunc(getRandomArbitrary(0,massNum.length));
+
+			Matr[curX][curY]=massNum[curIndex];
+			massNum.splice(curIndex, 1);
+
+			curX++;
+			if(curX==Dimension){
+				curX=0;
+				curY++;
+				if(curY>=Dimension)
+					break;
+			}
+			if(massNum.length==0)
+				break;
+		}
+	}
+
+
+
+	function initMatr(dimension){
+		Matr=[];
+		for(let i=0;i<dimension;++i){
+			Matr[i]=[];
+		}
+
+	}
+
+
+	function initMatrView(){
+//TODO
+var maindiv=document.getElementById('mainGameDiv');
+var str='';
+for(let i=0;i<Dimension;++i){
+	for(let i2=0;i2<Dimension;++i2){
+		str+='<div onclick="cellClick(this)" id="oneCell_'+i+'_'+i2+'" class="oneCell inlineBlock"></div>';
+	}
+	str+='<div></div>';
+}
+maindiv.innerHTML=str;
+
+
+}
+
+
+function cellClick(el){
+	if(el.innerHTML.trim())
+		return;
+
+	var cords=el.id.split('_');
+	var x=cords[1];
+	var y=cords[2];
+
+	var num=Matr[x][y];
+	el.innerHTML=num;
+	el.style.transform='rotate(50deg)';
+		//lastClickTimer=setTimeout(function(){el.innerHTML='';}, 2000);
+
+		if(!lastPreCheckId){
+			lastPreCheckId=el.id;
+			return;
+		}
+//уже была кликнута ячейка, проверяем на равенство
+if(lastPreCheckId==el.id)
+	return;
+let cordsOld=lastPreCheckId.split('_');
+let xOld=cordsOld[1];
+let yOld=cordsOld[2];
+let cell=document.getElementById(lastPreCheckId);
+cell.style.transform='rotate(0deg)';
+if(Matr[xOld][yOld]==num){
+	cell.style.backgroundColor = 'blue';
+	el.style.backgroundColor = 'blue';
+	el.style.transform='rotate(0deg)';
+	lastPreCheckId=null;
+}
+else{
+
+	cell.innerHTML='';
+	lastPreCheckId=el.id;
+}
+
+}
+
+
+
+
+//возвращают не int, -- Math.trunc();
+function getRandomForSide() {
+	return getRandomArbitrary(0,Dimension);
+}
+
+function getRandomArbitrary(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
+
+</script>
